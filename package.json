@@ -1,0 +1,32 @@
+{
+  "name": "enjoyable_chat",
+  "version": "1.0.0",
+  "description": "Chat App supported by Node.js, Socket.io, MongoDB",
+  "main": "index.js",
+  "scripts": {
+    "start": "NODE_ENV=production node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stanisdev/enjoyable_chat.git"
+  },
+  "keywords": [
+    "chat",
+    "node",
+    "mongo",
+    "socket.io"
+  ],
+  "author": "Stanislav Zavalishin <javascript.nodejs.developer@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/stanisdev/enjoyable_chat/issues"
+  },
+  "homepage": "https://github.com/stanisdev/enjoyable_chat#readme",
+  "dependencies": {
+    "express": "^4.16.2",
+    "glob": "^7.1.2",
+    "mongoose": "^4.13.6",
+    "nunjucks": "^3.0.1"
+  }
+}
