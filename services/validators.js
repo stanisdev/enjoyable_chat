@@ -1,0 +1,14 @@
+const Joi = require('joi');
+
+/**
+ * Primary url validators
+ */
+module.exports = {
+
+  login: {
+    body: {
+      email: Joi.string().email().required(),
+      password: Joi.string().required()
+    }
+  }
+};
