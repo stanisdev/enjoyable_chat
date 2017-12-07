@@ -1,6 +1,9 @@
 const morgan = require('morgan');
 const chalk = require('chalk');
 const path = require('path');
+const session = require('express-session');
+const RedisStore = require('connect-redis')(session);
+const redis = require('redis');
 
 /**
  * App assembly
@@ -74,5 +77,23 @@ module.exports = {
         console.log(err);
       }
     };
+  },
+
+  /**
+   * Route's wrapper
+   */
+  sessionConnection(app, config) {
+    //@TODO put redis config to .json file
+    app.use(session({
+      store: new RedisStore({
+        host: 'localhost',
+        port: 6379,
+        client: redis.createClient(),
+        ttl: 260
+      }),
+      secret: 'strong-blah-blah-code',
+      saveUninitialized: false,
+      resave: false
+    }));
   }
 };

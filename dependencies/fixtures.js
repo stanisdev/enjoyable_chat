@@ -63,6 +63,7 @@ mongoose.connect(`mongodb://${config.db.host}:${config.db.port}/${config.db.name
   const ChatModel = mongoose.model('Chat');
   const chats = [{
     name: 'Cozy Room',
+    type: 1, // Group chat
     members: [{
       user: createdUsers[0]._id, // admin
       role: 99
@@ -75,6 +76,7 @@ mongoose.connect(`mongodb://${config.db.host}:${config.db.port}/${config.db.name
     }]
   }, {
     name: 'Politics',
+    type: 1, 
     members: [{
       user: createdUsers[0]._id,
       role: 0

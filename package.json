@@ -29,13 +29,16 @@
     "bluebird": "^3.5.1",
     "body-parser": "^1.18.2",
     "chalk": "^2.3.0",
+    "connect-redis": "^3.3.2",
     "express": "^4.16.2",
+    "express-session": "^1.15.6",
     "glob": "^7.1.2",
     "joi": "^13.0.2",
     "mongoose": "^4.13.6",
     "morgan": "^1.9.0",
     "nunjucks": "^3.0.1",
-    "randomstring": "^1.1.5"
+    "randomstring": "^1.1.5",
+    "redis": "^2.8.0"
   },
   "engines": {
     "node": ">=7.0.0"

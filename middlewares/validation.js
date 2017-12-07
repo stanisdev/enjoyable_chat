@@ -1,8 +1,5 @@
 const Joi = require('joi');
 
-/**
- * Base ctrl
- */
 module.exports = (app) => {
 
   /**

@@ -14,6 +14,7 @@ module.exports = (config) => {
       return new Promise(async (resolve, reject) => {
 
         mongoose.Promise = bluebird;
+        mongoose.set('debug', true);
         const connection = {
           params: `mongodb://${config.db.host}:${config.db.port}/${config.db.name}`,
           options: {

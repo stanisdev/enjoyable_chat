@@ -12,10 +12,12 @@ const bodyParser = require('body-parser');
 config = Object.assign(config, { root_dir: __dirname });
 app.set('config', config);
 appAssembly.initMorgan(app);
+appAssembly.sessionConnection(app, config);
 
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 app.use(express.static(join(__dirname, 'public')));
+
 nunjucks.configure('views', {
   autoescape: true,
   express: app,
@@ -24,7 +26,7 @@ nunjucks.configure('views', {
 
 const models = require(__dirname + '/models')(config);
 
-// Load app dependencies
+// Build app structure
 Promise.all([
   glob("routes/*.js"),
   models.connect(),
@@ -41,7 +43,9 @@ Promise.all([
     return result;
   }, {});
 
-  // Load middlewares
+  app.use(middlewares.user);
+
+  // Load services
   services = services.reduce((result, path) => {
     return (result[ basename(path, '.js') ] = require(join(__dirname, path)), result);
   }, {});

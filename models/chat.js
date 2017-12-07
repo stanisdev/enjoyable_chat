@@ -12,6 +12,10 @@ module.exports = (mongoose) => {
       minlength: [1, "Chat name length too short"],
       maxlength: [50, "Chat name length too long"]
     },
+    type: {
+      type: Number,
+      default: 0
+    },
     members: [{
       _id: false,
       user: {

@@ -41,15 +41,37 @@ module.exports = (mongoose) => {
       type: mongoose.Schema.ObjectId,
       ref: 'Chat'
     }],
+    lastLogin: {
+      type: Date
+    },
     created_at: {
-      type: Date,
+      type: Date
     }
   });
 
+  /**
+   * Instance methods
+   */
+  userSchema.methods = {
+
+    /**
+     * Compare user's password with hash
+     */
+    isPasswordValid(password) {
+      return bcrypt.compareSync(password + this.salt, this.password);
+    }
+  };
+
+  /**
+   * Method is called before creating or updating user
+   */
   userSchema.pre('save', function(next) {
-    this.salt = randomstring.generate(10);
-    this.password = bcrypt.hashSync(this.password + this.salt, bcrypt.genSaltSync(10));
-    this.created_at = new Date();
+    if (this.isNew) { // Creation
+      this.salt = randomstring.generate(10);
+      this.password = bcrypt.hashSync(this.password + this.salt, bcrypt.genSaltSync(10));
+      this.created_at = new Date();
+    } else { // Updating
+    }
     next();
   });
 
