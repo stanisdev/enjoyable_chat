@@ -1,0 +1,26 @@
+{% extends 'layouts/main.html' %}
+
+{% block content %}
+
+  <h1 id="tables">My Chats</h1>
+  <br>
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th scope="col">Name</th>
+        <th scope="col">Last message</th>
+        <th style="width: 15%;" scope="col">Members count</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for chat in chats %}
+        <tr>
+          <td>{{ chat.name }}</td>
+          <td>Message content</td>
+          <td>{{ chat.membersCount }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+{% endblock %}

@@ -38,12 +38,10 @@ Promise.all([
   app.set('db', db);
 
   // Load middlewares
-  middlewares = middlewares.reduce((result, path) => {
-    result[ basename(path, '.js') ] = require(join(__dirname, path))(app);
-    return result;
-  }, {});
-
-  app.use(middlewares.user);
+  middlewares.forEach(path => {
+    let mdFunc = require(join(__dirname, path))(app);
+    app.use(mdFunc);
+  });
 
   // Load services
   services = services.reduce((result, path) => {
@@ -52,13 +50,13 @@ Promise.all([
 
   // Load routes
   files.forEach(file => {
-    require(join(__dirname, file))(app, appAssembly.wrapper, config, middlewares, services);
+    require(join(__dirname, file))(app, appAssembly.wrapper, config, {services});
   });
   appAssembly.errorHandlers(app);
 
   app.listen(port, () => {
     console.log(`Enjoyable Chat app listening on port ${port}`);
-    appAssembly.painLog();
+    appAssembly.paintLog();
   });
 
 }).catch(err => {

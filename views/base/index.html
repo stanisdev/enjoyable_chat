@@ -2,6 +2,10 @@
 
 {% block content %}
 
-Home page
+{% if (user._id) %}
+  Welcome back, <strong>{{ user.name }}</strong>.
+{% else %}
+  Welcome to enjoyable chat app.
+{% endif %}
 
 {% endblock %}

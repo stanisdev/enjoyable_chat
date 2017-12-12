@@ -50,7 +50,7 @@ module.exports = {
   /**
    * Paint standart console.log
    */
-  painLog() {
+  paintLog() {
     const log = console.log;
     console.log = function(...args) {
       args = args.map(e => {

@@ -1,21 +1,12 @@
 const express = require('express');
-const Joi = require('joi');
-
-const login = {
-  body: {
-    email: Joi.string().email().required(),
-    password: Joi.string().required()
-  }
-};
 
 /**
  * Base ctrl
  */
-module.exports = (app, wrapper, config, middlewares, services) => {
+module.exports = (app, wrapper, config, {services}) => {
   const db = app.get('db');
   const router = express.Router();
-  const validators = services.validators;
-  const filters = services.filters;
+  const {validators, filters} = services;
 
   /**
    * Home action
@@ -27,7 +18,7 @@ module.exports = (app, wrapper, config, middlewares, services) => {
   /**
    * Login to system
    */
-  router.post('/login', middlewares.validation(validators.login), wrapper(async (req, res) => {
+  router.post('/login', filters.incomingDataValidation(validators.login), wrapper(async (req, res) => {
     const user = await db.model('User').findOne({
       email: req.body.email
     }, 'name salt password state');
@@ -58,8 +49,16 @@ module.exports = (app, wrapper, config, middlewares, services) => {
    * Leave system
    */
   router.get('/logout', filters.auth, wrapper(async (req, res) => {
-    delete req.session.userId;
-    res.redirect('/');
+    req.session.destroy(err => {
+      if (err) {
+        console.error(err);
+        return res.json({
+          success: false,
+          message: "It's not allowed to destroy session"
+        });
+      }
+      res.redirect('/');
+    });
   }));
 
   app.use('/', router);
