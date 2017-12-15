@@ -15,7 +15,9 @@
     <tbody>
       {% for chat in chats %}
         <tr>
-          <td>{{ chat.name }}</td>
+          <td>
+            <a href="/chats/{{ chat.id }}">{{ chat.name }}</a>
+          </td>
           <td>Message content</td>
           <td>{{ chat.membersCount }}</td>
         </tr>

@@ -25,11 +25,11 @@ module.exports = (mongoose) => {
       role: {
         type: Number,
         default: 0
+      },
+      is_deleted: {
+        type: Boolean,
+        default: false
       }
-    }],
-    messages: [{
-      type: mongoose.Schema.ObjectId,
-      ref: 'Message'
     }],
     created_at: {
       type: Date,
@@ -83,6 +83,23 @@ module.exports = (mongoose) => {
           });
         });
         resolve(chats);
+      });
+    },
+
+    /**
+     * Get members by chatId
+     */
+    getMembers(chatId) {
+      return this.findOne({
+        _id: chatId,
+        members: {
+          $elemMatch: {
+            is_deleted: false
+          }
+        }
+      }, {
+        _id: 0,
+        "members.user": 1
       });
     }
   };

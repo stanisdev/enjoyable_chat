@@ -66,23 +66,28 @@ mongoose.connect(`mongodb://${config.db.host}:${config.db.port}/${config.db.name
     type: 1, // Group chat
     members: [{
       user: createdUsers[0]._id, // admin
-      role: 99
+      role: 99,
+      is_deleted: false
     }, {
       user: createdUsers[1]._id, // plain member
-      role: 0
+      role: 0,
+      is_deleted: false
     }, {
       user: createdUsers[2]._id, // moderator
-      role: 1
+      role: 1,
+      is_deleted: false
     }]
   }, {
     name: 'Politics',
-    type: 1, 
+    type: 1,
     members: [{
       user: createdUsers[0]._id,
-      role: 0
+      role: 0,
+      is_deleted: false
     }, {
       user: createdUsers[1]._id,
-      role: 99
+      role: 99,
+      is_deleted: false
     }]
   }];
 
@@ -130,6 +135,55 @@ mongoose.connect(`mongodb://${config.db.host}:${config.db.port}/${config.db.name
     return console.error(err);
   }
   console.log('Chats related to users');
+
+  // Messages creating
+  const MessageModel = mongoose.model('Message');
+  const messages = [{
+    content: 'Hello there',
+    type: 'text/plain',
+    chat: createdChats[0]._id,
+    author: createdUsers[1]._id,
+    statuses: [{
+      user: createdUsers[1]._id,
+      value: 2
+    }, {
+      user: createdUsers[2]._id,
+      value: 1
+    }],
+    created_at: new Date()
+  }, {
+    content: 'Second message',
+    type: 'text/plain',
+    chat: createdChats[0]._id,
+    author: createdUsers[2]._id,
+    statuses: [{
+      user: createdUsers[1]._id,
+      value: 2
+    }, {
+      user: createdUsers[0]._id,
+      value: 2
+    }, {
+      user: createdUsers[2]._id,
+      value: 2
+    }],
+    created_at: new Date()
+  }];
+
+  await MessageModel.remove();
+
+  try {
+    await Promise.all(
+      messages.map(async (message) => {
+        message = new MessageModel(message);
+        await message.save();
+        return null;
+      })
+    );
+  } catch (err) {
+    console.log('Messages cannot be created');
+    return console.error(err);
+  }
+  console.log('Messages created');
 
 }).catch((err) => {
   console.log('Fixtures cannot be loaded');
