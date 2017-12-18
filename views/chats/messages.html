@@ -2,6 +2,10 @@
 
 {% block content %}
 
+  <script>
+    var chatId = '{{ chat._id }}';
+  </script>
+
   <h1 id="tables">{{ chat.name }}</h1>
   <br>
 
@@ -21,9 +25,9 @@
 
   <div class="form-group">
     <label for="exampleTextarea">New message</label>
-    <textarea class="form-control" id="exampleTextarea" rows="3"></textarea>
+    <textarea class="form-control" id="messageContent" rows="3"></textarea>
     <br>
-    <button type="button" class="btn btn-primary">Send</button>
+    <button id="sendMessage" type="button" class="btn btn-primary">Send</button>
   </div>
 
 {% endblock %}

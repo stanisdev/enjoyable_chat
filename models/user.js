@@ -59,6 +59,23 @@ module.exports = (mongoose) => {
      */
     isPasswordValid(password) {
       return bcrypt.compareSync(password + this.salt, this.password);
+    },
+  };
+
+  /**
+   * Static methods
+   */
+  userSchema.statics = {
+
+    /**
+     * Find user with active = 1 state
+     */
+    findActiveUser(userId) {
+      return this.findOne({
+        _id: userId,
+        state: 1
+      })
+      .exec();
     }
   };
 

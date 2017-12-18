@@ -8,6 +8,8 @@ const { promisify } = require('util');
 const glob = promisify(require('glob'));
 const { join, basename } = require('path');
 const bodyParser = require('body-parser');
+const http = require('http').Server(app);
+const io = require('socket.io')(http);
 
 config = Object.assign(config, { root_dir: __dirname });
 app.set('config', config);
@@ -36,6 +38,7 @@ Promise.all([
   let [files, db, middlewares, services] = data;
 
   app.set('db', db);
+  require(__dirname + '/dependencies/socket.io.js')(io, db);
 
   // Load middlewares
   middlewares.forEach(path => {
@@ -54,7 +57,7 @@ Promise.all([
   });
   appAssembly.errorHandlers(app);
 
-  app.listen(port, () => {
+  http.listen(port, () => {
     console.log(`Enjoyable Chat app listening on port ${port}`);
     appAssembly.paintLog();
   });

@@ -20,6 +20,7 @@ module.exports = (app, wrapper, config, {services}) => {
    * Get messages by chat id
    */
   router.get('/:id', filters.auth, filters.incomingDataValidation(validators.id), filters.isChatMember(db), wrapper(async (req, res) => {
+    console.log(req.session.userId);
     const messages = await db.model('Message').getMessagesByChat(req.params.id, req.user.id);
     res.render('chats/messages.html', { messages, chat: req.chat });
   }));
