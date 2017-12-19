@@ -10,6 +10,7 @@ const { join, basename } = require('path');
 const bodyParser = require('body-parser');
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
+const EventEmitter = require('events');
 
 config = Object.assign(config, { root_dir: __dirname });
 app.set('config', config);
@@ -37,8 +38,10 @@ Promise.all([
 ]).then(data => {
   let [files, db, middlewares, services] = data;
 
+  const ee = new EventEmitter();
   app.set('db', db);
-  require(__dirname + '/dependencies/socket.io.js')(io, db);
+  app.set('ee', ee);
+  require(__dirname + '/dependencies/socket.io.js')(io, db, ee);
 
   // Load middlewares
   middlewares.forEach(path => {

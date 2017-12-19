@@ -82,6 +82,26 @@ module.exports = (mongoose) => {
         }
         resolve(messages);
       });
+    },
+
+    /**
+     * New message
+     */
+    async createMessage(chatId, authorId, content, members) {
+      const statuses = members.map(member => {
+        return {
+          user: member.user,
+          value: (member.user.toString() == authorId ? 2 : 0)
+        };
+      });
+      const message = new this({
+        content,
+        type: 'text/plain',
+        chat: chatId,
+        author: authorId,
+        statuses
+      });
+      return message.save();
     }
   };
 

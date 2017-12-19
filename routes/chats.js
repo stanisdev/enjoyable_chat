@@ -25,26 +25,5 @@ module.exports = (app, wrapper, config, {services}) => {
     res.render('chats/messages.html', { messages, chat: req.chat });
   }));
 
-  /**
-   * Write to chat
-   */
-  router.post('/:id/write', filters.auth, filters.incomingDataValidation(validators.id), filters.isChatMember(db), wrapper(async (req, res) => {
-    let members = await db.model('Chat').getMembers(req.chat.id);
-    members = members.members.map(element => {
-      return {
-        user: element.user,
-        value: ( element.user == req.user.id ? 2 : 0 )
-      };
-    });
-    const MessageModel = mongoose.model('Message');
-    const message = {
-      content: req.body.content,
-      type: 'text/plain',
-      chat: req.chat.id,
-      author: req.user.id,
-      statuses: members
-    };
-  }));
-
   app.use('/chats', router);
 };

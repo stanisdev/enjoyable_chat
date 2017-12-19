@@ -1,8 +1,9 @@
-const bluebird = require('bluebird');
+const redisClient = require(__dirname + '/redisClient');
+
 /**
  * Sockets controll
  */
-module.exports = (io, db) => {
+module.exports = (io, db, ee) => {
 
   /**
    * Authorization middleware
@@ -19,15 +20,7 @@ module.exports = (io, db) => {
       return console.error('Unknown error. Socket connection cannot be runed');;
     }
     const sessId = connectSid.substr(4, connectSid.indexOf('.') - 4);
-
-    const redis = require("redis");
-    bluebird.promisifyAll(redis.RedisClient.prototype);
-    bluebird.promisifyAll(redis.Multi.prototype);
-    client = redis.createClient();
-
-    client.on("error", function (err) {
-      console.log("Error " + err);
-    });
+    const client = redisClient.getClient();
 
     // Fetch session data by sess-id
     client.getAsync('sess:' + sessId).then(async (value) => {
@@ -46,7 +39,7 @@ module.exports = (io, db) => {
         socket.handshake.userData = user.toObject();
 
         // Save sess-id and socket.id for handy searching chat-members data while writing new message
-        client.set(`sockdat:${fields.userId}`, socket.id, function(err, result) {
+        client.set(`sockdata:${fields.userId}`, socket.id.toString(), function(err, result) {
           if (err || result != 'OK') {
             return console.error(err);
           }
@@ -67,35 +60,75 @@ module.exports = (io, db) => {
     /**
     * Get new message from chat memeber
     */
-    socket.on('chat message', async function(message) {
-      const {content, chatId} = message;
+    socket.on('chat:message', async function(data) {
+      const {content, chatId} = data;
       const user = socket.handshake.userData;
 
-      const [foundUser, {members}] = await Promise.all([
+      const [currUser, {members}] = await Promise.all([
         db.model('User').findActiveUser(user._id),
         db.model('Chat').getMembers(chatId)
       ]);
 
-      if (!(foundUser instanceof Object)) {
+      if (!(currUser instanceof Object)) {
         return socket.emit('disallow writing', 'You cannot write');
       }
 
       // Check is user member of chat
-      const membership = members.filter(m => m.user.toString() == user._id);
+      var membershipIndex = -1;
+      const membership = members.filter((m, index) => {
+        if (m.user.toString() == user._id) {
+          membershipIndex = index;
+          return true;
+        }
+        return false;
+      });
       if (membership.length < 1 || !(membership[0] instanceof Object)) {
         return socket.emit('disallow writing', 'Chat not found');
       }
+      // Create message
+      try {
+        const message = await db.model('Message').createMessage(chatId, user._id, content, members);
+      } catch (err) {
+        return console.log(err); // @TODO: Emit event error:create:message
+      }
 
-      // Check that socket.id retreived from Redis exist in sockets.ids list yet
-      // console.log(io.sockets.sockets[socket.id] instanceof Object);
+      // Remove current user from chat members
+      members.splice(membershipIndex, 1);
+
+      // Find user's socket.id by him user._id in Redis
+      const client = redisClient.getClient();
+
+      const membersSocketIds = await Promise.all(
+        members.map(async member => {
+          let socketId = await client.getAsync('sockdata:' + member.user.toString()); // @TODO: toString() call once
+          return socketId;
+        })
+      );
+
+      // Send message to interlocutors
+      for (let i = 0; i < membersSocketIds.length; i++) {
+        let socketId = membersSocketIds[i];
+        // Check that socket.id retreived from Redis exist in sockets.ids list yet
+        if (io.sockets.sockets[socketId] instanceof Object) {
+          console.log(socketId);
+          socket.broadcast.to(socketId).emit('chat:message', content);
+        }
+      }
+      
     });
 
     /**
     * When user disconnected via sockets
     */
     socket.on('disconnect', function(){
-
     });
+  });
+
+  /**
+   * If user voluntarily has logouted from system
+   */
+  ee.on('user:logouted', ({socketId}) => {
+    io.to(socketId).emit('user:logouted');
   });
 
 };

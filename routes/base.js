@@ -7,6 +7,8 @@ module.exports = (app, wrapper, config, {services}) => {
   const db = app.get('db');
   const router = express.Router();
   const {validators, filters} = services;
+  const redisClient = require(config.root_dir + '/dependencies/redisClient');
+  const ee = app.get('ee');
 
   /**
    * Home action
@@ -49,13 +51,21 @@ module.exports = (app, wrapper, config, {services}) => {
    * Leave system
    */
   router.get('/logout', filters.auth, wrapper(async (req, res) => {
-    req.session.destroy(err => {
+    req.session.destroy(async err => {
       if (err) {
         console.error(err);
         return res.json({
           success: false,
           message: "It's not allowed to destroy session"
         });
+      }
+      const client = redisClient.getClient();
+      const key = 'sockdata:' + req.user._id;
+      const socketId = await client.getAsync(key);
+      await client.delAsync(key);
+
+      if (typeof socketId == 'string') {
+        ee.emit('user:logouted', { socketId });
       }
       res.redirect('/');
     });
