@@ -1,25 +1,14 @@
-const mongoose = require('mongoose');
-const bluebird = require('bluebird');
-const config = require(__dirname + '/config.json');
-const glob = require('glob');
 const path = require('path');
-const rootDir = path.dirname(__dirname);
+process.env.ROOT_DIR = path.dirname(__dirname);
+process.env.DB_LOGGING = false;
 
-mongoose.Promise = bluebird;
+require('dotenv').config();
+const modelsEmmiter = require('./../models');
 
-/**
- * Connect to DB before loading demo data
- */
-mongoose.connect(`mongodb://${config.db.host}:${config.db.port}/${config.db.name}`, {
-  useMongoClient: true,
-  promiseLibrary: bluebird
-}).then(async () => {
-
-  const modelPathes = glob.sync(rootDir + "/models/**/!(index).js");
-  modelPathes.forEach(path => {
-    require(path)(mongoose);
-  });
-
+// Connected
+modelsEmmiter.on('done', async function() {
+  const mongoose = require('mongoose');
+  
   const UserModel = mongoose.model('User');
   const users = [{
     name: 'Toby',
@@ -184,8 +173,5 @@ mongoose.connect(`mongodb://${config.db.host}:${config.db.port}/${config.db.name
     return console.error(err);
   }
   console.log('Messages created');
-
-}).catch((err) => {
-  console.log('Fixtures cannot be loaded');
-  console.log(err);
+  process.exit();
 });

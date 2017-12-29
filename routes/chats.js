@@ -1,29 +1,35 @@
-const express = require('express');
+const Router = require('koa-router');
+const passport = require('koa-passport');
+const db = require('mongoose');
+const filters = require('./../services/filters');
+const validators = require('./../services/validators');
+
+const router = new Router({
+  prefix: '/chats'
+});
 
 /**
- * Base ctrl
+ * List of chats
  */
-module.exports = (app, wrapper, config, {services}) => {
-  const db = app.get('db');
-  const router = express.Router();
-  const {filters, validators} = services;
+router.get('/', passport.authRequired, async ctx => {
+  const chats = await db.model('Chat').getMyChats(ctx.state.user._id);
+  await ctx.render('chats/list', {
+    title: 'My Chat',
+    chats
+  });
+});
 
-  /**
-   * Home action
-   */
-  router.get('/', filters.auth, wrapper(async (req, res) => {
-    const chats = await db.model('Chat').getMyChats(req.user._id);
-    res.render('chats/list.html', { chats });
-  }));
+/**
+ * Get messages by chat id
+ */
+router.get('/:id', passport.authRequired, validators.url.hasObjectId, filters.isChatMember, async ctx => {
+  const chat = await db.model('Chat').findById(ctx.params.id);
+  const messages = await db.model('Message').getMessagesByChat(ctx.params.id, ctx.state.user._id);
+  await ctx.render('chats/messages', {
+    title: 'Chat messages',
+    chat: ctx.chat, 
+    messages
+  });
+});
 
-  /**
-   * Get messages by chat id
-   */
-  router.get('/:id', filters.auth, filters.incomingDataValidation(validators.id), filters.isChatMember(db), wrapper(async (req, res) => {
-    console.log(req.session.userId);
-    const messages = await db.model('Message').getMessagesByChat(req.params.id, req.user.id);
-    res.render('chats/messages.html', { messages, chat: req.chat });
-  }));
-
-  app.use('/chats', router);
-};
+module.exports = router;

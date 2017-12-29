@@ -35,7 +35,7 @@
             {% endif %}
           </ul>
           {% if (user._id) %}
-            <a class="btn btn-primary my-2 my-sm-0" href="/logout">Logout</a>
+            <a class="btn btn-primary my-2 my-sm-0" href="/users/logout">Logout</a>
           {% else %}
             <button class="btn btn-primary my-2 my-sm-0" data-toggle="modal" data-target="#loginModal">Login</button>
           {% endif %}
@@ -57,12 +57,12 @@
             <button type="button" class="close" data-dismiss="modal">&times;</button>
           </div>
 
-          <form action="/login" method="post">
+          <form action="/users/login" method="post">
             <!-- Modal body -->
             <div class="modal-body">
               <div class="form-group">
                 <label for="email">Email address</label>
-                <input type="email" name="email" class="form-control" aria-describedby="email" placeholder="Enter email">
+                <input type="email" name="username" class="form-control" aria-describedby="email" placeholder="Enter email">
               </div>
               <div class="form-group">
                 <label for="password">Password</label>
