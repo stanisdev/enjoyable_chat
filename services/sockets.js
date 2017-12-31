@@ -112,7 +112,7 @@ module.exports = (io) => {
   /**
    * If user voluntarily has logouted from system
    */
-  app.on('user:logouted', (socketId) => {
-    io.to(socketId).emit('user:logouted');
+  app.on('account:logouted', (socketId) => {
+    io.to(socketId).emit('account:logouted');
   });
 };

@@ -21,5 +21,18 @@ module.exports = {
     }
     ctx.chat = chat;
     await next();
+  },
+
+  /**
+   * Check is user exists
+   */
+  async isUserExists(ctx, next) {
+    const total = await db.model('User').count({
+      _id: ctx.params.id
+    }).exec();
+    if (total < 1) {
+      return ctx.throw(400, 'User not found');
+    }
+    next();
   }
 };

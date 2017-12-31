@@ -15,8 +15,10 @@
   "keywords": [
     "chat",
     "node",
-    "mongo",
-    "socket.io"
+    "node.js",
+    "mongodb",
+    "socket.io", 
+    "real-time"
   ],
   "author": "Stanislav Zavalishin <javascript.nodejs.developer@gmail.com>",
   "bugs": {

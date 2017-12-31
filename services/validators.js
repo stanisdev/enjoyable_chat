@@ -10,6 +10,11 @@ module.exports = {
       params: {
         id: Joi.string().regex(/^[0-9abcdef]{24}$/g).required()
       }
+    }), 
+    hasType: validate({
+      params: {
+        type: Joi.number().min(-1).max(1).required()
+      }
     })
   },
   /**

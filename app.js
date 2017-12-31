@@ -55,7 +55,7 @@ routes.forEach(route => {
 
 const server = require('http').createServer(app.callback());
 const io = require('socket.io')(server);
-require('./services/sockets')(io, app);
+require('./services/sockets')(io);
 
 // Logger
 app.use(async(ctx, next) => {

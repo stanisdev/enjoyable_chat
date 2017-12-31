@@ -58,7 +58,7 @@ userSchema.methods = {
    */
   isPasswordValid(password) {
     return bcrypt.compareSync(password + this.salt, this.password);
-  },
+  }
 };
 
 /**
@@ -75,6 +75,22 @@ userSchema.statics = {
       state: 1
     })
     .exec();
+  }, 
+
+  /**
+   * Find users
+   */
+  findAllByQuery(query, currUserId) {
+    const selector = {
+      state: 1, 
+      _id: {
+        $ne: currUserId
+      }
+    };
+    if (typeof query == 'string' && query.length > 0) {
+      selector.name = new RegExp(`${query}`, 'i');
+    }
+    return this.find(selector, 'name age lastLogin').exec();
   }
 };
 

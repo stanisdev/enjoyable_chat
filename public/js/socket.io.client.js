@@ -8,7 +8,7 @@ $(() => {
   });
 
   // Reaction if user exited from system
-  socket.on('user:logouted', function() {
+  socket.on('account:logouted', function() {
     window.location = "/";
   });
 

@@ -1,32 +1,43 @@
 const Router = require('koa-router');
-const passport = require('koa-passport');
 const db = require('mongoose');
-const app = require('./../app');
-const redisClient = require('./../services/redisClient');
+const passport = require('koa-passport');
+const validators = require('./../services/validators');
+const filters = require('./../services/filters');
 
 const router = new Router({
   prefix: '/users'
 });
 
 /**
- * Login post handler
+ * List of users (filter by name can be used)
  */
-router.post('/login', passport.authenticate('local', {
-  successRedirect: '/chats',
-  failureRedirect: '/'
-}), ctx => {
-  ctx.body = 'Chats name';
+router.get('/', async ctx => {
+  const {
+    query
+  } = ctx.query;
+  const users = await db.model('User').findAllByQuery(query, ctx.state.user._id);
+
+  await ctx.render('users/list', {
+    title: 'Users',
+    users
+  });
 });
 
 /**
- * Logout from system
+ * Set new relationship between current user and other
  */
-router.get('/logout', async ctx => {
-  const socketId = await redisClient.getAsync(`socket:${ctx.state.user._id}`);
-  ctx.session = null;
-  ctx.logout();
-  app.emit('user:logouted', socketId);
-  ctx.redirect('/');
+router.get('/relationship/:id/type/:type', passport.authRequired, validators.url.hasObjectId, validators.url.hasType, filters.isUserExists, async ctx => {
+  const defendantId = ctx.params.id;
+  const currUserId = ctx.state.user._id;
+
+  switch (+ctx.params.type) {
+    case 0:
+      // Add to friends
+      await db.model('Relationship').sendFriendshipRequest(currUserId, defendantId);
+      break;
+  }
+  ctx.body = 'AA';
 });
+
 
 module.exports = router;

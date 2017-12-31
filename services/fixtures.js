@@ -28,6 +28,30 @@ modelsEmmiter.on('done', async function() {
     password: 123,
     age: 25,
     state: 1
+  }, {
+    name: 'Maxy',
+    email: 'maxy@gmail.com',
+    password: 123,
+    age: 42,
+    state: 1
+  }, {
+    name: 'Bela',
+    email: 'bela@gmail.com',
+    password: 123,
+    age: 42,
+    state: 0
+  }, {
+    name: 'Lily',
+    email: 'lily@gmail.com',
+    password: 123,
+    age: 68,
+    state: 1
+  }, {
+    name: 'Galina',
+    email: 'galina@gmail.com',
+    password: 123,
+    age: 25,
+    state: 1
   }];
 
   await UserModel.remove();
