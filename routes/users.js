@@ -12,9 +12,7 @@ const router = new Router({
  * List of users (filter by name can be used)
  */
 router.get('/', async ctx => {
-  const {
-    query
-  } = ctx.query;
+  const { query } = ctx.query;
   const users = await db.model('User').findAllByQuery(query, ctx.state.user._id);
 
   await ctx.render('users/list', {
@@ -26,17 +24,37 @@ router.get('/', async ctx => {
 /**
  * Set new relationship between current user and other
  */
-router.get('/relationship/:id/type/:type', passport.authRequired, validators.url.hasObjectId, validators.url.hasType, filters.isUserExists, async ctx => {
-  const defendantId = ctx.params.id;
+router.get('/relationship', passport.authRequired, async ctx => {
+  const defendantId = ctx.query.defendant;
   const currUserId = ctx.state.user._id;
 
-  switch (+ctx.params.type) {
+  switch (+ctx.query.type) {
     case 0:
       // Add to friends
       await db.model('Relationship').sendFriendshipRequest(currUserId, defendantId);
       break;
   }
-  ctx.body = 'AA';
+  ctx.redirect('/users');
+});
+
+/**
+ * Write message to user
+ */
+router.get('/write', passport.authRequired, async ctx => {
+  const currUserId = ctx.state.user._id;
+  const friendId = ctx.query.id;
+
+  const isFriend = await db.model('User').isFriend(currUserId, friendId);
+  if (!isFriend) {
+    ctx.throw(400, 'It\'s allowed to write only friends');
+  }
+  var chat = await db.model('Chat').findChatByMembers(currUserId, friendId);
+  if (!(chat instanceof Object)) {
+    chat = await db.model('Chat').createIndividualChat([
+      currUserId, friendId
+    ], { name: ctx.state.user.name });
+  }
+  ctx.redirect(`/chats/${chat._id}`);
 });
 
 

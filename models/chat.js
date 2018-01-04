@@ -11,7 +11,7 @@ const chatSchema = new mongoose.Schema({
     minlength: [1, "Chat name length too short"],
     maxlength: [50, "Chat name length too long"]
   },
-  type: {
+  type: { // 0 - individual, 1 - group
     type: Number,
     default: 0
   },
@@ -41,6 +41,45 @@ const chatSchema = new mongoose.Schema({
 chatSchema.statics = {
 
   /**
+   * Find individual chat
+   */
+  findChatByMembers(userFirst, userSecond) {
+    return this.findOne({
+      $and: [
+        { members: {
+            $elemMatch: {
+              user: userFirst
+            }
+          } 
+        },
+        { members: {
+            $elemMatch: {
+              user: userSecond
+            }
+          } 
+        }
+      ],
+      type: 0
+    }).exec();
+  },
+
+  /**
+   * Create new individual chat
+   */
+  createIndividualChat(users, options = {}) {
+    const members = users.map((user) => {
+      return {
+        user,
+        role: 0,
+        is_deleted: false
+      };
+    });
+    options.type = 0;
+    const chat = Object.assign({ members }, options);
+    return (new this(chat)).save();
+  },
+
+  /**
    * Get list of my chats
    */
   async getMyChats(userId) {
@@ -66,8 +105,7 @@ chatSchema.statics = {
             }
           }
         },
-        {
-          $project: {
+        { $project: {
             item: 1,
             count: {
               $size: "$members"
@@ -78,10 +116,7 @@ chatSchema.statics = {
     ]);
 
     // Combine result
-    membersCount.forEach(({
-      _id,
-      count
-    }) => {
+    membersCount.forEach(({ _id, count }) => {
       chats = chats.map(chat => {
         if (chat._id.toString() == _id) {
           chat.membersCount = count;

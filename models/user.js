@@ -80,7 +80,7 @@ userSchema.statics = {
   /**
    * Find users
    */
-  findAllByQuery(query, currUserId) {
+  async findAllByQuery(query, currUserId) {
     const selector = {
       state: 1, 
       _id: {
@@ -90,7 +90,68 @@ userSchema.statics = {
     if (typeof query == 'string' && query.length > 0) {
       selector.name = new RegExp(`${query}`, 'i');
     }
-    return this.find(selector, 'name age lastLogin').exec();
+    var users = await this.find(selector, 'name age lastLogin').exec();
+    const ids = users.map(user => user._id.toString());
+
+    const rels = await mongoose.model('Relationship').find({
+      $or: [
+        { $and: [
+            { initiator: currUserId },
+            { defendant: { $in: ids } }
+          ]
+        }, 
+        { $and: [
+            { initiator: { $in: ids } },
+            { defendant: currUserId },
+            { state: 1 }
+          ]
+        }
+      ]
+    }, {
+      initiator: 1, defendant: 1, state: 1, _id: 0 
+    });
+    
+    // Find and set relationships
+    users = users.map((user) => {
+      let userId = user._id.toString();
+
+      for (let i = 0; i < rels.length; i++) {
+        const rel = rels[i];
+        let [initiatorId, defendantId] = [rel.initiator.toString(), rel.defendant.toString()];
+        
+        if (rel.state == 1 && (defendantId == userId || initiatorId == userId)) {
+          user.isFriend = true;
+          break;
+        }
+        if (rel.state == 0 && defendantId == userId) {
+          user.requestSent = true;
+        }
+      }
+      return user;
+    });
+
+    return users;
+  },
+
+  /**
+   * Check is user is my friend
+   */
+  isFriend(currUserId, friendId) {
+    return mongoose.model('Relationship').count({
+      $or: [
+        {$and: [
+            { initiator: currUserId },
+            { defendant: friendId }
+          ]
+        },
+        {$and: [
+            { initiator: friendId },
+            { defendant: currUserId }
+          ]
+        }
+      ],
+      state: 1
+    }).exec();
   }
 };
 
