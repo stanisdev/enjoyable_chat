@@ -4,6 +4,9 @@
 
   <h1 id="tables">My Chats</h1>
   <br>
+  <div style="float: right; margin-top: -67px;">
+    <a class="btn btn-primary" href="/chats/new/group" role="button">Create group chat</a>
+  </div>
   <table class="table table-hover">
     <thead>
       <tr>
@@ -18,7 +21,7 @@
           <td>
             <a href="/chats/{{ chat.id }}">{{ chat.name }}</a>
           </td>
-          <td>Message content</td>
+          <td>{{ chat.lastMessage }}</td>
           <td>{{ chat.membersCount }}</td>
         </tr>
       {% endfor %}

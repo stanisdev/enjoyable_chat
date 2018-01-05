@@ -83,47 +83,59 @@ chatSchema.statics = {
    * Get list of my chats
    */
   async getMyChats(userId) {
-    let [chats, membersCount] = await Promise.all([
-      this.find({
-        members: {
-          $elemMatch: {
-            user: userId
-          }
+    const chats = (await this.find({
+      members: {
+        $elemMatch: {
+          user: userId
         }
-      })
-      .select('name')
-      .limit(10)
-      .skip(0),
-
-      // Of course we could count 'membersCount' using existing value 'members[]' through JS. But aggregation more interesting :)
-      this.aggregate([{
-          $match: {
-            members: {
-              $elemMatch: {
-                user: userId
-              }
-            }
-          }
-        },
-        { $project: {
-            item: 1,
-            count: {
-              $size: "$members"
-            }
-          }
-        }
-      ])
-    ]);
-
-    // Combine result
-    membersCount.forEach(({ _id, count }) => {
-      chats = chats.map(chat => {
-        if (chat._id.toString() == _id) {
-          chat.membersCount = count;
-        }
-        return chat;
-      });
+      }
+    })
+    .select('name type members')
+    .limit(10)
+    .skip(0))
+    .map((chat) => {
+      if (Array.isArray(chat.members)) {
+        chat.membersCount = chat.members.length;
+      }
+      return chat;
     });
+    
+    // Get name of interlocutor and set as chat's name
+    const individualChats = chats.filter((chat) => chat.type == 0);
+    await Promise.all([
+      Promise.all(
+        individualChats.map(async (chat) => {
+  
+          // Find interlocutor
+          for (let i = 0; i < chat.members.length; i++) {
+            let interlocutorId = chat.members[i].user.toString();
+            if (interlocutorId != userId) {
+              
+              let {name} = await mongoose.model('User').findOne({
+                _id: interlocutorId
+              }, 'name');
+              chat.name = name;
+              break;
+            }
+          }
+          return 1;
+        })
+      ),
+  
+      // Find last message
+      Promise.all(
+        chats.map(async (chat) => {
+  
+          const message = await mongoose.model('Message').findOne({
+            chat: chat._id
+          }, 'content type')
+          .sort({ created_at: 'desc' });
+          if (message instanceof Object) {
+            chat.lastMessage = message.content.substr(0, 50);
+          }
+        })
+      )
+    ]);
     return chats;
   },
 

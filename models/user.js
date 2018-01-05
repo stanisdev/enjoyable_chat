@@ -152,6 +152,29 @@ userSchema.statics = {
       ],
       state: 1
     }).exec();
+  },
+
+  /**
+   * Find user's friends
+   */
+  async getFriends(userId) {
+    const rels = await mongoose.model('Relationship').find({
+      $or: [
+        { defendant: userId },
+        { initiator: userId }
+      ],
+      state: 1
+    }, 'initiator defendant').exec();
+
+    const friendsIds = rels.map((rel) => {
+      return rel.initiator.toString() == userId ? rel.defendant : rel.initiator; 
+    });
+
+    // Extract friends info
+    return await this.find({
+      _id: { $in: friendsIds },
+      state: 1
+    }, 'name age lastLogin').exec();
   }
 };
 

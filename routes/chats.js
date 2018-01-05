@@ -23,13 +23,23 @@ router.get('/', passport.authRequired, async ctx => {
  * Get messages by chat id
  */
 router.get('/:id', passport.authRequired, validators.url.hasObjectId, filters.isChatMember, async ctx => {
-  const chat = await db.model('Chat').findById(ctx.params.id);
   const messages = await db.model('Message').getMessagesByChat(ctx.params.id, ctx.state.user._id);
   await ctx.render('chats/messages', {
     title: 'Chat messages',
     chat: ctx.chat, 
     messages
   });
+});
+
+/**
+ * Create group chat
+ */
+router.get('/new/group', passport.authRequired, async ctx => {
+  const friends = await db.model('User').getFriends( ctx.state.user._id );
+  await ctx.render('chats/newGroup', {
+    title: 'Create new group chat',
+    friends
+  })
 });
 
 module.exports = router;
