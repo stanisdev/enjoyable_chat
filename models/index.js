@@ -35,3 +35,14 @@ const connection = {
 })();
 
 module.exports = emitter;
+
+/**
+ * Pretty validation errors
+ */
+mongoose.prettyValidationErrors = function({errors}) {
+  var result = '';
+  Object.keys(errors).forEach((field) => {
+    result += `Field: "${field}" has error: ` + errors[field].message + "\n";
+  });
+  return result;
+};

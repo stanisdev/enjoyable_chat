@@ -42,4 +42,49 @@ router.get('/new/group', passport.authRequired, async ctx => {
   })
 });
 
+/**
+ * Create group chat (POST)
+ */
+router.post('/new/group', passport.authRequired, async ctx => {
+  const { body } = ctx.request;
+  const name = body.name;
+  delete body.name;
+
+  const ids = Object.keys(body);
+  if (ids.length < 1) {
+    // @TODO Flash message
+  }
+  const members = ids.map((id) => {
+    return {
+      user: id,
+      is_deleted: false,
+      role: 0
+    };
+  });
+  members.push({
+    user: ctx.state.user._id,
+    is_deleted: false,
+    role: 99
+  });
+  
+  const chat = new (db.model('Chat'))({
+    type: 1,
+    name,
+    members
+  });
+  const errors = chat.validateSync();
+  if (errors) {
+    const message = db.prettyValidationErrors(errors);
+    console.log(message);
+    return;
+    // @TODO Print message to Flash
+  }
+  try {
+    await chat.save();
+  } catch (err) {
+    return ctx.throw(400, err);
+  }
+  ctx.redirect('/chats/new/group');
+});
+
 module.exports = router;

@@ -157,24 +157,49 @@ userSchema.statics = {
   /**
    * Find user's friends
    */
-  async getFriends(userId) {
-    const rels = await mongoose.model('Relationship').find({
-      $or: [
-        { defendant: userId },
-        { initiator: userId }
-      ],
-      state: 1
-    }, 'initiator defendant').exec();
-
-    const friendsIds = rels.map((rel) => {
-      return rel.initiator.toString() == userId ? rel.defendant : rel.initiator; 
-    });
-
-    // Extract friends info
-    return await this.find({
-      _id: { $in: friendsIds },
-      state: 1
-    }, 'name age lastLogin').exec();
+  getFriends(userId) {
+    return mongoose.model('Relationship').aggregate([
+      { $match:
+          { $or: [
+            { defendant: userId },
+            { initiator: userId }
+          ],
+          state: 1
+        },
+      },
+      { $project: {
+          result: {
+            $cond: {
+              if: { 
+                $ne: [ '$defendant', userId ] 
+              },
+              then: '$defendant',
+              else: '$initiator'
+            }
+          },
+        }
+      },
+      { $lookup: {
+          from: 'users',
+          localField: 'result',
+          foreignField: '_id',
+          as: 'user'
+        }
+      },
+      { $unwind: {
+          path: '$user'
+        }
+      },
+      { $match: {
+          'user.state': 1
+        }
+      },
+      { $project: {
+          user: { _id: 1, name: 1, lastLogin: 1, age: 1 },
+          _id: 0
+        }
+      },
+    ]).exec();
   }
 };
 

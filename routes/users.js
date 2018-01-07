@@ -50,9 +50,10 @@ router.get('/write', passport.authRequired, async ctx => {
   }
   var chat = await db.model('Chat').findChatByMembers(currUserId, friendId);
   if (!(chat instanceof Object)) {
-    chat = await db.model('Chat').createIndividualChat([
-      currUserId, friendId
-    ], { name: ctx.state.user.name });
+    chat = await db.model('Chat').createChat([currUserId, friendId], { 
+      name: ctx.state.user.name,
+      type: 0 
+    });
   }
   ctx.redirect(`/chats/${chat._id}`);
 });

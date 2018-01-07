@@ -3,13 +3,27 @@
 {% block content %}
 
   <h1 id="tables">Create group chats</h1>
+  <br/>
   
-  <form method="post" action="">
-    {% for friend in friends %}
-      <div class="">
-        {{ friend.name }}
-      </div>
-    {% endfor %}
+  <!-- Form -->
+  <form method="post" action="/chats/new/group">
+
+    <table class="table table-hover">
+      <tbody>
+        {% for friend in friends %}
+          <tr>
+            <th>{{ friend.user.name }}</th>
+            <td>
+              <input name="{{ friend.user._id }}" type="checkbox">
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <input placeholder="Group chat name" type="text" class="form-control" name="name" style="width: 30%;">
+    <br/>
+    <button type="submit" class="btn btn-primary">Create</button>
   </form>
 
 {% endblock %}

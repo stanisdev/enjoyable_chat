@@ -10,6 +10,7 @@ const logger = require('koa-logger');
 const debug = require('debug')('koa2:server');
 const path = require('path');
 const glob = require("glob");
+const flash = require('./services/flash');
 
 const routes = glob.sync(path.join(__dirname, '/routes/*.js'));
 require(path.join(__dirname, '/services/session'))(app);
@@ -39,6 +40,7 @@ require(path.join(__dirname, '/services/passport'));
 const passport = require('koa-passport');
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(flash);
 
 module.exports = app;
 

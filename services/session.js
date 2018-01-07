@@ -38,8 +38,13 @@ module.exports = function (app) {
       set: async(cookieKey, sessData, maxage) => {
         const keys = Object.keys(sessData).filter(key => !key.startsWith('_'));
         const hashData = [];
+        const sessKey = `sess:${cookieKey}`;
         for (let key of keys) {
           let value = sessData[key];
+          if (!value) { // If undefined then remove
+            await client.hdel(sessKey, key);
+            continue;
+          }
           if (value instanceof Object) {
             value = JSON.stringify(value);
           } else {
@@ -47,7 +52,6 @@ module.exports = function (app) {
           }
           hashData.push(key, value);
         }
-        const sessKey = `sess:${cookieKey}`;
         hashData.unshift(sessKey);
         try {
           const hashExists = await client.existsAsync(sessKey);

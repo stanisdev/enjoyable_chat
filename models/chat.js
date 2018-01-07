@@ -66,15 +66,17 @@ chatSchema.statics = {
   /**
    * Create new individual chat
    */
-  createIndividualChat(users, options = {}) {
-    const members = users.map((user) => {
-      return {
-        user,
-        role: 0,
-        is_deleted: false
-      };
-    });
-    options.type = 0;
+  createChat(users, options = {}) {
+    var members = {};
+    if (Array.isArray(users)) {
+      members = users.map((user) => {
+        return {
+          user,
+          role: 0,
+          is_deleted: false
+        };
+      });
+    }
     const chat = Object.assign({ members }, options);
     return (new this(chat)).save();
   },
