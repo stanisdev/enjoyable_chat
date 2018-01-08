@@ -13,10 +13,19 @@ $(() => {
   });
 
   $('#sendMessage').on('click', function() {
-    socket.emit('chat:message', {
-      content: $('#messageContent').val(),
-      chatId
+    
+    $.ajax({
+      url: `/chats/${chatId}/write`,
+      method: 'POST',
+      data: {
+        content: $('#messageContent').val(),
+      }
+    }).done(function(response) {
+      console.log(response);
+    }).fail(function(err) {
+      console.log(err);
     });
+
     $('#messageContent').val('');
     return false;
   });

@@ -17,8 +17,23 @@ module.exports = async (ctx, next) => {
         ctx.session.flash = {};
       }
       ctx.session.flash[propName] = value;
+    },
+    has: function(target, prop) {
+      return ctx.session.flash instanceof Object && ctx.session.flash.hasOwnProperty(prop); 
     }
   });
+
+  // Rendering
+  ctx.state.hasFlash = () => {
+    return Reflect.has(ctx.flash, 'message');
+  };
+  ctx.state.getFlash = () => {
+    var message = ctx.flash.message;
+    if (typeof message == 'string') {
+      message = message.replace(/\n/g, '<br />');
+    }
+    return message;
+  };
 
   await next();
 };

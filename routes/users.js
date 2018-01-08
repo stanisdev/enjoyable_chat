@@ -17,7 +17,8 @@ router.get('/', async ctx => {
 
   await ctx.render('users/list', {
     title: 'Users',
-    users
+    users,
+    query
   });
 });
 

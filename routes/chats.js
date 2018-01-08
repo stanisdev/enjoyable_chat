@@ -20,6 +20,22 @@ router.get('/', passport.authRequired, async ctx => {
 });
 
 /**
+ * Write new message
+ */
+router.post('/:id/write', passport.authRequired, validators.url.hasObjectId, filters.isChatMember, async ctx => {
+  const {content} = ctx.request.body;
+  const chatId = ctx.chat._id;
+  const members = await db.model('Chat').getMembers(chatId);
+
+  // Создать такой промис, который будет переходить в 3 состояния 
+  // (1 - когда произошло сохранение | 2 - когда ошибка сохранения | 3 - когда ошибка валидации)
+  ctx.body = {
+    success: true,
+    data: ctx.params.id
+  };
+});
+
+/**
  * Get messages by chat id
  */
 router.get('/:id', passport.authRequired, validators.url.hasObjectId, filters.isChatMember, async ctx => {
@@ -52,7 +68,8 @@ router.post('/new/group', passport.authRequired, async ctx => {
 
   const ids = Object.keys(body);
   if (ids.length < 1) {
-    // @TODO Flash message
+    ctx.flash.message = 'Select some friends to chat';
+    return ctx.redirect('/chats/new/group');
   }
   const members = ids.map((id) => {
     return {
@@ -74,17 +91,15 @@ router.post('/new/group', passport.authRequired, async ctx => {
   });
   const errors = chat.validateSync();
   if (errors) {
-    const message = db.prettyValidationErrors(errors);
-    console.log(message);
-    return;
-    // @TODO Print message to Flash
+    ctx.flash.message = db.prettyValidationErrors(errors);
+    return ctx.redirect('/chats/new/group');
   }
   try {
     await chat.save();
   } catch (err) {
     return ctx.throw(400, err);
   }
-  ctx.redirect('/chats/new/group');
+  ctx.redirect(`/chats/${chat._id}`);
 });
 
 module.exports = router;

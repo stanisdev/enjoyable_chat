@@ -17,7 +17,7 @@
     "node",
     "node.js",
     "mongodb",
-    "socket.io", 
+    "socket.io",
     "real-time"
   ],
   "author": "Stanislav Zavalishin <javascript.nodejs.developer@gmail.com>",

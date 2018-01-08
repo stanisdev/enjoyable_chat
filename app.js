@@ -47,6 +47,12 @@ module.exports = app;
 process.env.ROOT_DIR = __dirname;
 require('./models');
 
+app.use(async(ctx, next) => {
+  const mongoose = require('mongoose');
+  mongoose.ctx = ctx;
+  await next();
+});
+
 // Routes
 routes.forEach(route => {
   let router = require(route);
