@@ -48,60 +48,6 @@ module.exports = (io) => {
   io.on('connection', function (socket) {
 
     /**
-     * Get new message from chat memeber
-     */
-    socket.on('chat:message', async function (data) {
-      const {content, chatId} = data;
-      const user = socket.handshake.userData;
-
-      const [currUser, members] = await Promise.all([
-        db.model('User').findActiveUser(user._id),
-        db.model('Chat').getMembers(chatId)
-      ]);
-      if (!(currUser instanceof Object)) {
-        return socket.emit('disallow writing', 'You cannot write');
-      }
-
-      var membershipIndex = -1;
-      const membership = members.filter((member, index) => {
-        if (member.userId == user._id) {
-          membershipIndex = index;
-          return true;
-        }
-        return false;
-      });
-      if (membership.length < 1 || !(membership[0] instanceof Object)) {
-        return socket.emit('disallow writing', 'Chat not found');
-      }
-
-      // Create message
-      try {
-        var message = await db.model('Message').createMessage(chatId, user._id, content, members);
-      } catch (err) {
-        return console.log(err); // @TODO: Emit event error:create:message
-      }
-      // Remove current user from chat members
-      members.splice(membershipIndex, 1);
-
-      // Find user's socket.id by him user._id in Redis
-      const membersSocketIds = await Promise.all(
-        members.map(async member => {
-          return await redisClient.getAsync(`socket:${member.userId}`);
-        })
-      );
-      
-      // Send message to interlocutors
-      for (let i = 0; i < membersSocketIds.length; i++) {
-        let socketId = membersSocketIds[i];
-        // Check that socket.id retreived from Redis exist in sockets.ids list yet
-        if (io.sockets.sockets[socketId] instanceof Object) {
-          console.log(socketId);
-          socket.broadcast.to(socketId).emit('chat:message', content);
-        }
-      }
-    });
-
-    /**
      * When user disconnected via sockets
      */
     socket.on('disconnect', function(){
@@ -114,5 +60,19 @@ module.exports = (io) => {
    */
   app.on('account:logouted', (socketId) => {
     io.to(socketId).emit('account:logouted');
+  });
+
+  /**
+   * Chat new message event (send interlocutors)
+   */
+  app.on('chat:message', ({socketIds, message}) => {
+    for (let i = 0; i < socketIds.length; i++) {
+      let socketId = socketIds[i];
+
+      // Check that socket.id retreived from redis exist in sockets.ids list yet
+      if (io.sockets.sockets[socketId] instanceof Object) {
+        io.sockets.sockets[socketId].emit('chat:message', message);
+      }
+    }
   });
 };

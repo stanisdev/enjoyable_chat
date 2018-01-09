@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const multi = require('./../services/multi');
 
 /**
  * Schema
@@ -77,21 +78,33 @@ messageSchema.statics = {
   /**
    * New message
    */
-  async createMessage(chatId, authorId, content, members) {
-    const statuses = members.map(member => {
-      return {
-        user: member.userId,
-        value: (member.userId == authorId ? 2 : 0)
-      };
+  createMessage(chatId, authorId, content, members) {
+    return multi(async (saved, notValid, error) => {
+      try {
+        var interlocutors = [];
+        const statuses = members.map(({userId}) => {
+          return {
+            user: userId,
+            value: userId == authorId ? 2 : (interlocutors.push(userId), 0)
+          };
+        });
+        const message = new this({
+          content,
+          type: 'text/plain',
+          chat: chatId,
+          author: authorId,
+          statuses
+        });
+        const errors = message.validateSync();
+        if (errors) { // Message not valid
+          return notValid(mongoose.prettyValidationErrors(errors));
+        }
+        const result = await message.save();
+        saved(result.toObject(), interlocutors); // Nice!
+      } catch (err) {
+        error(err);
+      }
     });
-    const message = new this({
-      content,
-      type: 'text/plain',
-      chat: chatId,
-      author: authorId,
-      statuses
-    });
-    return message.save();
   }
 };
 

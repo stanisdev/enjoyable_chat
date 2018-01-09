@@ -45,6 +45,7 @@
     "koa2-validation": "0.1.0",
     "mongoose": "4.13.8",
     "nunjucks": "~3.0.0",
+    "only": "0.0.2",
     "passport-local": "1.0.0",
     "randomstring": "1.1.5",
     "redis": "2.8.0",

@@ -3,6 +3,9 @@ const passport = require('koa-passport');
 const db = require('mongoose');
 const filters = require('./../services/filters');
 const validators = require('./../services/validators');
+const redisClient = require('./../services/redisClient');
+const app = require('./../app');
+const only = require('only');
 
 const router = new Router({
   prefix: '/chats'
@@ -27,12 +30,39 @@ router.post('/:id/write', passport.authRequired, validators.url.hasObjectId, fil
   const chatId = ctx.chat._id;
   const members = await db.model('Chat').getMembers(chatId);
 
-  // Создать такой промис, который будет переходить в 3 состояния 
-  // (1 - когда произошло сохранение | 2 - когда ошибка сохранения | 3 - когда ошибка валидации)
-  ctx.body = {
-    success: true,
-    data: ctx.params.id
-  };
+  await db.model('Message').createMessage(chatId, ctx.state.user._id, content, members)
+    .saved(async (message, members, next) => {
+      ctx.body = {
+        success: true,
+        data: message
+      };
+      // Find memebrs socket.id by their user._id in redis
+      const socketIds = await Promise.all(
+        members.map(async member => {
+          return await redisClient.getAsync(`socket:${member}`);
+        })
+      );
+      message = only(message, '_id chat content type created_at');
+      app.emit('chat:message', {
+        socketIds, 
+        message: Object.assign({ author: ctx.state.user }, message)
+      });
+      next();
+    })
+    .notValid((errors, next) => {
+      ctx.body = {
+        success: false,
+        message: errors
+      };
+      next();
+    })
+    .error((message, next) => {
+      ctx.body = {
+        success: false,
+        message: 'Unknown error'
+      };
+      next();
+    });
 });
 
 /**

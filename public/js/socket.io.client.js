@@ -26,7 +26,7 @@ $(() => {
       console.log(err);
     });
 
-    $('#messageContent').val('');
+    // $('#messageContent').val('');
     return false;
   });
 });
