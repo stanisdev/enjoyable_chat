@@ -32,6 +32,9 @@ router.post('/:id/write', passport.authRequired, validators.url.hasObjectId, fil
 
   await db.model('Message').createMessage(chatId, ctx.state.user._id, content, members)
     .saved(async (message, members, next) => {
+      message = only(message, '_id chat content type created_at');
+      message = Object.assign({ author: ctx.state.user }, message);
+
       ctx.body = {
         success: true,
         data: message
@@ -42,11 +45,7 @@ router.post('/:id/write', passport.authRequired, validators.url.hasObjectId, fil
           return await redisClient.getAsync(`socket:${member}`);
         })
       );
-      message = only(message, '_id chat content type created_at');
-      app.emit('chat:message', {
-        socketIds, 
-        message: Object.assign({ author: ctx.state.user }, message)
-      });
+      app.emit('chat:message', { socketIds, message });
       next();
     })
     .notValid((errors, next) => {

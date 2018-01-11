@@ -1,10 +1,14 @@
 $(() => {
 
-  var socket = io();
+  const socket = io();
+  const msg = new Messages();
 
   // Receive message from interlocutors
   socket.on('chat:message', function(message) {
-    console.log(message);
+    if (!msg.validateReceived(message)) {
+      return;
+    }
+    msg.append(message);
   });
 
   // Reaction if user exited from system
@@ -13,20 +17,21 @@ $(() => {
   });
 
   $('#sendMessage').on('click', function() {
+    const content = $('#messageContent').val();
     
-    $.ajax({
-      url: `/chats/${chatId}/write`,
-      method: 'POST',
-      data: {
-        content: $('#messageContent').val(),
+    msg.send(content).then((result) => {
+      if (!msg.validateReceived(result.data)) {
+        return alert('Error while sending message');
       }
-    }).done(function(response) {
-      console.log(response);
-    }).fail(function(err) {
-      console.log(err);
+      if (result.success !== true) {
+        return alert(
+          result.hasOwnProperty('message') ? result.message : 'Uknown error'
+        );
+      }
+      msg.append(result.data);
+      $('#messageContent').val('');
+    }).catch((err) => {
+      alert('Message not sended');
     });
-
-    // $('#messageContent').val('');
-    return false;
   });
 });

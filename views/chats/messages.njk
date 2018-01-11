@@ -1,33 +1,28 @@
 {% extends 'layouts/base.njk' %}
 
 {% block content %}
-
+  <link rel="stylesheet" href="/css/messages.css">
   <script>
     var chatId = '{{ chat._id }}';
   </script>
+  
+  <div class="messages-box">
 
-  <h1 id="tables">{{ chat.name }}</h1>
-  <br>
-
-  <div class="card border-primary mb-3" style="max-width: 20rem;">
-    <div class="card-header">Messages</div>
-    <div class="card-body text-primary">
-
+    <div class="messages-list">
       {% for message in messages %}
-        <div class="">
+        <div class="message-body">
           {{ message.author.name }}:
           {{ message.content }}
         </div>
       {% endfor %}
-
     </div>
-  </div>
 
-  <div class="form-group">
-    <label for="exampleTextarea">New message</label>
-    <textarea class="form-control" id="messageContent" rows="3"></textarea>
-    <br>
-    <button id="sendMessage" type="button" class="btn btn-primary">Send</button>
+    <div class="form-group">
+      <textarea class="form-control new-message-typing" id="messageContent" rows="3"></textarea>
+      <br>
+      <button id="sendMessage" type="button" class="btn btn-primary">Send</button>
+    </div>
+
   </div>
 
 {% endblock %}

@@ -1,6 +1,6 @@
 /**
  * Multi promise
- * @param {*function} mainCb 
+ * @param {Function} mainCb 
  */
 module.exports = function(mainCb) {
   var match = /\([^\)]+\)/g.exec(mainCb.toString());

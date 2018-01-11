@@ -1,0 +1,21 @@
+.messages-box {
+  max-width: 800px; 
+  margin:0 auto; 
+  min-width: 700px;
+}
+
+.messages-box > div.messages-list {
+  width: 100%; 
+  font-size: 14px; 
+  color: #4B4B4B;
+  padding: 7px;
+  border-left: 1px solid #ced4da;
+  border-top: 1px solid #ced4da;  
+  border-right: 1px solid #ced4da;
+  border-radius: 0.25rem;
+  height: 40vh;
+}
+
+.new-message-typing {
+  font-size: 13px;
+}
