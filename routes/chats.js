@@ -17,7 +17,7 @@ const router = new Router({
 router.get('/', passport.authRequired, async ctx => {
   const chats = await db.model('Chat').getMyChats(ctx.state.user._id);
   await ctx.render('chats/list', {
-    title: 'My Chat',
+    title: 'Chats',
     chats
   });
 });
@@ -129,6 +129,43 @@ router.post('/new/group', passport.authRequired, async ctx => {
     return ctx.throw(400, err);
   }
   ctx.redirect(`/chats/${chat._id}`);
+});
+
+/**
+ * Add new member in chat
+ */
+router.post('/:id/add_member', passport.authRequired, validators.url.hasObjectId, filters.isChatMember, async ctx => {
+  const userId = ctx.request.body.user_id;
+  const chatId = ctx.params.id;
+
+  if (validators.custom.objectId(userId).error != null) {
+    return ctx.body = {
+      success: false,
+      message: 'User Id is incorrect'
+    };
+  }
+  // Check is user not member of chat yet
+  let members = ctx.chat.members;
+  for (let i = 0; i < members.length; i++) {
+    if (members[i].user.toString() == userId) {
+      return ctx.body = {
+        success: false,
+        message: 'User already in chat'
+      };
+    }
+  }
+  try {
+    await ctx.chat.addMember(userId, 0);
+  } catch (err) {
+    console.log(err);
+    return ctx.body = {
+      success: false,
+      message: 'User not added. Try again'
+    };
+  }
+  ctx.body = {
+    success: true
+  };
 });
 
 module.exports = router;

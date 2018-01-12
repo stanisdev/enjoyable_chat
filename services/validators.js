@@ -1,6 +1,10 @@
 const validate = require('koa2-validation');
 const Joi = require('joi');
 
+const validators = {
+  objectId: Joi.string().regex(/^[0-9abcdef]{24}$/g).required()
+};
+
 module.exports = {
   /**
    * Url-validators
@@ -8,7 +12,7 @@ module.exports = {
   url: {
     hasObjectId: validate({
       params: {
-        id: Joi.string().regex(/^[0-9abcdef]{24}$/g).required()
+        id: validators.objectId
       }
     }), 
     hasType: validate({
@@ -20,5 +24,11 @@ module.exports = {
   /**
    * Post-data validators
    */
-  body: {}
+  body: {},
+  /**
+   * For other cases
+   */
+  custom: {
+    objectId: (value) => Joi.validate(value, validators.objectId)
+  }
 };

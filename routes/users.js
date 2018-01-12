@@ -59,5 +59,35 @@ router.get('/write', passport.authRequired, async ctx => {
   ctx.redirect(`/chats/${chat._id}`);
 });
 
+/**
+ * Get user friends
+ */
+router.get('/friends', passport.authRequired, async ctx => {
+  const chatId = ctx.query.chat_id;
+  if (chatId) {
+    if (validators.custom.objectId(chatId).error != null) {
+      ctx.throw(400, 'Chat id is incorrect');
+    }
+    var chat = await db.model('Chat').findChatWithMemberId(chatId, ctx.state.user._id);
+    if (!(chat instanceof Object)) {
+      ctx.throw(400, 'Chat not found');
+    }
+    if (chat.type != 1) {
+      return ctx.body = {
+        success: false,
+        message: 'Chat must be group'
+      };
+    }
+  }
+  var friends = await db.model('User').getFriends(ctx.state.user._id);
+  if (chatId) { // May be other filter params
+    const members = chat.members.map(member => member.user.toString());
+    friends = friends.filter(friend => !members.includes(friend.user._id.toString()));
+  }
+  ctx.body = {
+    success: true,
+    friends
+  };
+});
 
 module.exports = router;

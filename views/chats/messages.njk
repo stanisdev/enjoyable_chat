@@ -2,6 +2,7 @@
 
 {% block content %}
   <link rel="stylesheet" href="/css/messages.css">
+  <script src="/js/chatMembers.js"></script>
   <script>
     var chatId = '{{ chat._id }}';
   </script>
@@ -21,8 +22,39 @@
       <textarea class="form-control new-message-typing" id="messageContent" rows="3"></textarea>
       <br>
       <button id="sendMessage" type="button" class="btn btn-primary">Send</button>
+
+      <div style="float: right;" class="btn-group" role="group" aria-label="Button group with nested dropdown">
+        <button type="button" class="btn btn-info">Actions</button>
+        <div class="btn-group" role="group">
+          <button id="btnGroupDrop3" type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+          <div class="dropdown-menu" aria-labelledby="btnGroupDrop3" x-placement="bottom-start" style="position: absolute; transform: translate3d(0px, 38px, 0px); top: 0px; left: 0px; will-change: transform;">
+            <a class="dropdown-item" id="addInterlocutor" data-toggle="modal" data-target="#addInterlocutorModal" href="#">Add interlocutor</a>
+          </div>
+        </div>
+      </div>
     </div>
 
+  </div>
+
+  <!-- Adding interlocutors -->
+  <div class="modal fade" id="addInterlocutorModal">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Add interlocutor</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="addInterlocutorModal-body">
+          
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary">Add</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
   </div>
 
 {% endblock %}

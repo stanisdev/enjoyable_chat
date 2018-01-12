@@ -36,6 +36,24 @@ const chatSchema = new mongoose.Schema({
 });
 
 /**
+ * Instance methods
+ */
+chatSchema.methods = {
+
+  /**
+   * Add new member
+   */
+  addMember(userId, role) {
+    this.members.push({
+      user: userId,
+      is_deleted: false,
+      role
+    });
+    return this.save();
+  }
+};
+
+/**
  * Static chats methods
  */
 chatSchema.statics = {
@@ -79,6 +97,21 @@ chatSchema.statics = {
     }
     const chat = Object.assign({ members }, options);
     return (new this(chat)).save();
+  },
+
+  /**
+   * Find chat with member id
+   */
+  findChatWithMemberId(chatId, userId) {
+    return this.findOne({
+      _id: chatId,
+      members: {
+        $elemMatch: {
+          user: userId,
+          is_deleted: false
+        }
+      }
+    });
   },
 
   /**
