@@ -11,7 +11,7 @@
 
     <div class="messages-list">
       {% for message in messages %}
-        <div class="message-body">
+        <div data-id="{{ message._id }}" class="message-body{% if (message.statuses.value < 2) %} unread{% endif %}">
           {{ message.author.name }}:
           {{ message.content }}
         </div>

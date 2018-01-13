@@ -105,6 +105,42 @@ messageSchema.statics = {
         error(err);
       }
     });
+  },
+
+  /**
+   * Find messages by ids
+   */
+  findByIds(ids, chatId, userId, status) {
+    return this.find({
+      chat: chatId,
+      _id: {
+        $in: ids
+      },
+      statuses: {
+        $elemMatch: {
+          user: userId,
+          value: {
+            $lt: status
+          }
+        }
+      }
+    }).exec();
+  },
+  
+  /**
+   * Update messages status
+   */
+  updateStatus(ids, userId, status) {
+    return this.updateMany({
+      _id: {
+        $in: ids
+      },
+      'statuses.user': userId
+    }, {
+      $set: {
+        'statuses.$.value': status
+      }
+    }).exec();
   }
 };
 

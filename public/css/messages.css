@@ -19,3 +19,7 @@
 .new-message-typing {
   font-size: 13px;
 }
+
+.unread {
+  background-color: #ccc;
+}

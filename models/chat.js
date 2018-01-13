@@ -169,7 +169,41 @@ chatSchema.statics = {
             chat.lastMessage = message.content.substr(0, 50);
           }
         })
-      )
+      ),
+
+      // Count unread messages
+      new Promise(async (resolve, reject) => {
+        const unread = await mongoose.model('Message').aggregate([
+          { $match:
+              { chat: {
+                $in: chats.map(chat => chat._id)
+              },
+              statuses: {
+                $elemMatch: {
+                  user: userId,
+                  value: {
+                    $lt: 2
+                  }
+                }
+              }
+            },
+          },
+          { $group: {
+              _id: '$chat', msg_count: { $sum: 1 }
+            }
+          }
+        ]);
+        if (Array.isArray(unread)) {
+          unread.forEach((value) => {
+            for (let i = 0; i < chats.length; i++) {
+              if (chats[i]._id.toString() == value._id.toString()) {
+                chats[i].unreadCount = value.msg_count;
+              }
+            }
+          });
+        }
+        resolve();
+      })
     ]);
     return chats;
   },

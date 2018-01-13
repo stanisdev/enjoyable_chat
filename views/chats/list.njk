@@ -2,6 +2,18 @@
 
 {% block content %}
 
+  <style>
+    .unreadMessages {
+      background-color: #FF6316; 
+      border-radius: 5px; 
+      color: #fff; 
+      padding: 3px;
+    }
+    div.unread {
+      float: right;
+    }
+  </style>
+
   <h1 id="tables">Chats</h1>
   <br>
   <div style="float: right; margin-top: -67px;">
@@ -20,6 +32,13 @@
         <tr>
           <td>
             <a href="/chats/{{ chat.id }}">{{ chat.name }}</a>
+            
+            {% if (chat.unreadCount) %}
+              <div class="unread">
+                <span class="unreadMessages">+{{ chat.unreadCount }}</span>
+              </div>          
+            {% endif %}
+
           </td>
           <td>{{ chat.lastMessage }}</td>
           <td>{{ chat.membersCount }}</td>

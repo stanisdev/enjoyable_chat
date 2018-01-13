@@ -24,7 +24,18 @@ module.exports = {
   /**
    * Post-data validators
    */
-  body: {},
+  body: {
+    hasIds: validate({
+      body: {
+        ids: Joi.array().min(1).items(validators.objectId).required()
+      }
+    }),
+    hasStatus: validate({
+      body: {
+        status: Joi.number().min(1).max(2).required()
+      }
+    })
+  },
   /**
    * For other cases
    */

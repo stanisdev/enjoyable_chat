@@ -168,4 +168,36 @@ router.post('/:id/add_member', passport.authRequired, validators.url.hasObjectId
   };
 });
 
+/**
+ * Receive message ids and mark them as readed
+ */
+router.post('/:id/messages/status', 
+  passport.authRequired, 
+  validators.url.hasObjectId,
+  validators.body.hasIds, 
+  validators.body.hasStatus, 
+  filters.isChatMember, 
+async ctx => {
+  const {ids, status} = ctx.request.body;
+  const userId = ctx.state.user._id;
+  const messages = await db.model('Message').findByIds(ids, ctx.chat._id, userId, status);
+  if (!Array.isArray(messages)) {
+    return ctx.body = {
+      success: false,
+      message: 'Nothing to update'
+    };
+  }
+  try {
+    await db.model('Message').updateStatus(messages.map(m => m._id), userId, status);    
+  } catch (err) {
+    return ctx.body = {
+      success: false,
+      message: 'Statuses not updated'
+    };
+  }
+  ctx.body = {
+    success: true
+  };
+});
+
 module.exports = router;

@@ -11,6 +11,8 @@ class Messages {
       alert(err.substr(err.indexOf(':') + 2));
       return true;
     };
+    this.findUnread();
+    this.saveUnread();
   }
   /**
    * Append message as last
@@ -54,5 +56,36 @@ class Messages {
         }
       }).done(res).fail(rej);
     });
+  }
+  /**
+   * Find unread messages
+   */
+  findUnread() {
+    const messages = $('div.unread');
+    this.unreadIds = []; 
+    if (messages.length > 0) {
+      $.each(messages, (index, elem) => {
+        this.unreadIds.push($(elem).attr('data-id'));
+      });
+    }
+  }
+  /**
+   * Set unread messages as readed by sending msg-ids to server
+   */
+  saveUnread() {
+    const {unreadIds} = this;
+    if (!Array.isArray(unreadIds) || unreadIds.length < 1 || !window.chatId) {
+      return;
+    }
+    $.ajax({
+      url: `/chats/${chatId}/messages/status`,
+      method: 'POST',
+      data: {
+        ids: unreadIds,
+        status: 2
+      }
+    }).done((result) => {
+      console.log(result);
+    }).fail(() => {});
   }
 }
