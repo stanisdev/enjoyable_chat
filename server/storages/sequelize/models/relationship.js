@@ -1,24 +1,20 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
-  const ChatMember = sequelize.define('ChatMember', {
-    chatId: {
+  const Relationship = sequelize.define('Relationship', {
+    initiatorId: {
       type: DataTypes.UUID,
       allowNull: false,
     },
-    userId: {
+    defendant: {
       type: DataTypes.UUID,
       allowNull: false,
     },
-    role: {
+    state: {
       type: DataTypes.SMALLINT,
-      allowNull: false,
-    },
-    isDeleted: {
-      type: DataTypes.BOOLEAN,
       allowNull: false,
     }
   }, {});
-  ChatMember.associate = function(models) {
+  Relationship.associate = function(models) {
   };
-  return ChatMember;
+  return Relationship;
 };
