@@ -46,6 +46,8 @@ const userSchema = new mongoose.Schema({
   created_at: {
     type: Date
   }
+}, {
+  usePushEach: true,
 });
 
 /**

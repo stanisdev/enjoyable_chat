@@ -34,3 +34,6 @@ const routes = glob.sync(path.join(config.routes_path, '/**/**.js'));
 routes.forEach((route) => {
   require(route);
 });
+
+const services = require(config.services_path);
+services.errors();

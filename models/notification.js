@@ -13,4 +13,6 @@ const messageSchema = new mongoose.Schema({
     type: Number, 
     required: true
   }
+}, {
+  usePushEach: true,
 });
