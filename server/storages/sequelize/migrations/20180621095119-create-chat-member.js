@@ -7,7 +7,7 @@ module.exports = {
         primaryKey: true,
         allowNull: false,
       },
-      chatId: {
+      chat_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
@@ -17,7 +17,7 @@ module.exports = {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
       },
-      userId: {
+      user_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
@@ -31,7 +31,7 @@ module.exports = {
         type: Sequelize.SMALLINT,
         allowNull: false,
       },
-      isDeleted: {
+      is_deleted: {
         type: Sequelize.BOOLEAN,
         allowNull: true,
       },

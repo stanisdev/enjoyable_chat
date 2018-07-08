@@ -16,7 +16,7 @@ module.exports = {
         defaultValue: 'text/plain',
         allowNull: false,
       },
-      chatId: {
+      chat_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
@@ -26,7 +26,7 @@ module.exports = {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
       },
-      userId: {
+      user_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {

@@ -2,15 +2,15 @@
 module.exports = (sequelize, DataTypes) => {
   const MessageStatus = sequelize.define('MessageStatus', {
     messageId: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
     userId: {
-      type: Sequelize.UUID,
+      type: DataTypes.UUID,
       allowNull: false,
     },
     status: {
-      type: Sequelize.SMALLINT,
+      type: DataTypes.SMALLINT,
       allowNull: false,
     }
   }, {});

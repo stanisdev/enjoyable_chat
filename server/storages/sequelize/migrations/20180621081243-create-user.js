@@ -38,7 +38,7 @@ module.exports = {
         allowNull: false,
         defaultValue: 0, // 0 - not activated, 1 - activated
       },
-      lastLogin: {
+      last_login: {
         type: Sequelize.DATE,
       },
       createdAt: {

@@ -2,11 +2,11 @@
 module.exports = (sequelize, DataTypes) => {
   const ChatMember = sequelize.define('ChatMember', {
     chatId: {
-      type: DataTypes.UUID,
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
     userId: {
-      type: DataTypes.UUID,
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
     role: {
