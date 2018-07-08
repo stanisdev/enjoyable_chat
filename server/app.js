@@ -13,7 +13,7 @@ process.env.config_path = configPath;
 const app = express();
 app.use(helmet());
 app.set('config', config);
-app.use(logger('dev'));
+app.use(logger('dev'));``
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 

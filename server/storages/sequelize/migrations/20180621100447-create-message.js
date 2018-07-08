@@ -1,12 +1,11 @@
-'use strict';
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable('Messages', {
       id: {
-        allowNull: false,
+        type: Sequelize.INTEGER,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER,
+        allowNull: false,
       },
       content: {
         type: Sequelize.TEXT,
@@ -18,7 +17,7 @@ module.exports = {
         allowNull: false,
       },
       chatId: {
-        type: Sequelize.UUID,
+        type: Sequelize.INTEGER,
         allowNull: false,
         references: {
           model: 'Chats',
@@ -28,7 +27,7 @@ module.exports = {
         onUpdate: 'CASCADE',
       },
       userId: {
-        type: Sequelize.UUID,
+        type: Sequelize.INTEGER,
         allowNull: false,
         references: {
           model: 'Users',

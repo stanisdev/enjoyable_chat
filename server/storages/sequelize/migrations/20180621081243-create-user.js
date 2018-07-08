@@ -1,11 +1,10 @@
-'use strict';
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable('Users', {
       id: {
-        type: Sequelize.UUID,
+        type: Sequelize.INTEGER,
+        autoIncrement: true,
         primaryKey: true,
-        defaultValue: Sequelize.UUIDV4,
         allowNull: false,
       },
       name: {
@@ -28,7 +27,6 @@ module.exports = {
       age: {
         type: Sequelize.SMALLINT,
         allowNull: false,
-        defaultValue: 0,
       },
       blocked: {
         type: Sequelize.BOOLEAN,

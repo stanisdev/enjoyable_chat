@@ -1,11 +1,10 @@
-'use strict';
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable('Chats', {
       id: {
-        type: Sequelize.UUID,
+        type: Sequelize.INTEGER,
+        autoIncrement: true,
         primaryKey: true,
-        defaultValue: Sequelize.UUIDV4,
         allowNull: false,
       },
       name: {
@@ -21,12 +20,12 @@ module.exports = {
       },
       createdAt: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
       },
       updatedAt: {
         allowNull: false,
-        type: Sequelize.DATE
-      }
+        type: Sequelize.DATE,
+      },
     });
   },
   down: (queryInterface, Sequelize) => {

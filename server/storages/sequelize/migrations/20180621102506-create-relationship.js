@@ -1,4 +1,3 @@
-'use strict';
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable('Relationships', {
@@ -9,7 +8,7 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       initiatorId: {
-        type: Sequelize.UUID,
+        type: Sequelize.INTEGER,
         allowNull: false,
         references: {
           model: 'Users',
@@ -19,7 +18,7 @@ module.exports = {
         onUpdate: 'CASCADE',
       },
       defendant: {
-        type: Sequelize.UUID,
+        type: Sequelize.INTEGER,
         allowNull: false,
         references: {
           model: 'Users',
